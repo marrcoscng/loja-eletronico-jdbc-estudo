@@ -3,6 +3,7 @@ package br.com.loja_geral.model.entidade;
 import br.com.loja_geral.exception.EmailException;
 import java.util.regex.Pattern;
 
+
 public class Email {
 
     private static final String enderecoPadrao = "^[A-Za-z0-9_.-]+@[A-Za-z0-9]*\\.[A-Za-z]{2,}$";
