@@ -1,0 +1,64 @@
+# ==========================================
+# Java & Compilação
+# ==========================================
+*.class
+*.log
+*.jar
+*.war
+*.ear
+*.nar
+
+# Diretórios de build (Maven / Gradle / Eclipse / IntelliJ)
+bin/
+build/
+target/
+out/
+
+# ==========================================
+# Arquivos de Configuração da IDE
+# ==========================================
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# Eclipse
+.metadata/
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# ==========================================
+# Banco de Dados & Conexão (JDBC / MySQL)
+# ==========================================
+# Arquivos com senhas/usuários do banco de dados (ex: db.properties, config.properties)
+db.properties
+application.properties
+config.properties
+
+# Logs de banco de dados e arquivos locais
+*.sql.log
+*.sqlite
+
+# Drivers JDBC baixados manualmente caso fiquem fora da estrutura de libs rastreadas
+# (Descomente a linha abaixo se colocar arquivos .jar de drivers na raiz do projeto)
+# /lib/*.jar
+
+# ==========================================
+# Arquivos do Sistema Operacional
+# ==========================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# ==========================================
+# Web / Front-End (HTML & CSS)
+# ==========================================
+# Ignora arquivos temporários do SASS/LESS se for utilizar pré-processadores futuramente
+.sass-cache/
+*.css.map
