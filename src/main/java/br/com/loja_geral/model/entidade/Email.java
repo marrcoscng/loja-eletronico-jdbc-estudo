@@ -10,7 +10,7 @@ public class Email {
 
     private String endereco;
 
-    public Email(String endereco, String senha){
+    public Email(String endereco){
         regraEmail(endereco);
         this.endereco = endereco;
     }

@@ -34,4 +34,11 @@ public class Produto {
                 "Categoria: %s%n",nome,descricao,preco,categoria);
     }
 
+    public Long getId(){
+        return id;
+    }
+    public BigDecimal getPreco(){
+        return preco;
+    }
+
 }

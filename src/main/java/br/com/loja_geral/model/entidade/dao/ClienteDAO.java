@@ -9,8 +9,8 @@ public interface ClienteDAO< T extends Usuario> {
 
     void salvar(T usuario);
     void atualizar(T usuarioAtualizado);
-    Optional<T> buscarPorId(long id);
+    Optional<T> buscarPorId(Long id);
     ArrayList<T> buscarTodos();
-    void deletarId(long id);
+    void deletarId(Long id);
 
 }

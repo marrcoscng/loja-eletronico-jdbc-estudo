@@ -2,10 +2,12 @@ package br.com.loja_geral.model.entidade.enums;
 
 public enum Categoria {
 
+    PROMOCAO("Promoção"),
     ELETRONICO("Eletrônicos"),
     ROUPA("Roupas"),
     ELETRODOMESTICOS("Eletrodomesticos"),
     INFANTIL("Infantil");
+
 
     private final String categoria;
 
