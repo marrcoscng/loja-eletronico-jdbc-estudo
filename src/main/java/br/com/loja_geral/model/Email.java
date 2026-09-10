@@ -1,4 +1,4 @@
-package br.com.loja_geral.model.entidade;
+package br.com.loja_geral.model;
 
 import br.com.loja_geral.exception.EmailException;
 import java.util.regex.Pattern;

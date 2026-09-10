@@ -1,6 +1,6 @@
-package br.com.loja_geral.model.entidade.dao;
+package br.com.loja_geral.dao;
 
-import br.com.loja_geral.model.entidade.Produto;
+import br.com.loja_geral.model.Produto;
 import java.util.ArrayList;
 
 public interface ProdutoDAO<T extends Produto> {

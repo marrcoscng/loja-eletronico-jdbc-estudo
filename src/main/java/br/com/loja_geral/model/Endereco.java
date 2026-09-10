@@ -1,4 +1,4 @@
-package br.com.loja_geral.model.entidade;
+package br.com.loja_geral.model;
 
 public class Endereco {
 

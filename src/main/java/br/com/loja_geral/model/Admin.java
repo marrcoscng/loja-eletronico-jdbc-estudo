@@ -1,6 +1,6 @@
-package br.com.loja_geral.model.entidade;
+package br.com.loja_geral.model;
 
-import br.com.loja_geral.model.entidade.enums.TipoDoUsuario;
+import br.com.loja_geral.model.enums.TipoDoUsuario;
 
 public class Admin extends Usuario{
 

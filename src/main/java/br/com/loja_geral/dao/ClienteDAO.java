@@ -1,6 +1,6 @@
-package br.com.loja_geral.model.entidade.dao;
+package br.com.loja_geral.dao;
 
-import br.com.loja_geral.model.entidade.Usuario;
+import br.com.loja_geral.model.Usuario;
 
 import java.util.ArrayList;
 import java.util.Optional;

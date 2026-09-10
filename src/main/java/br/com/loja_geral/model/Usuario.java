@@ -1,6 +1,8 @@
-package br.com.loja_geral.model.entidade;
+package br.com.loja_geral.model;
 
-import br.com.loja_geral.model.entidade.enums.TipoDoUsuario;
+import br.com.loja_geral.exception.DadosInvalidosException;
+import br.com.loja_geral.model.enums.TipoDoUsuario;
+import br.com.loja_geral.util.ValidadorCpf;
 
 public abstract class Usuario {
 
@@ -13,9 +15,18 @@ public abstract class Usuario {
     private TipoDoUsuario tipoDoUsuario;
 
 
+    /**
+     * @param nome;
+     * @param cpf;
+     * @param email;
+     * @param senha;
+     * @param tipoDoUsuario;
+     * @throws br.com.loja_geral.exception.DocumentoInvalidoException;
+     *
+     */
     public Usuario(String nome, String cpf, Email email, String senha, TipoDoUsuario tipoDoUsuario){
-        this.nome = nome;
-        this.cpf = cpf;
+        setCpf(cpf);
+        setNome(nome);
         this.email = email;
         this.senha = senha;
         this.tipoDoUsuario = tipoDoUsuario;
@@ -44,6 +55,18 @@ public abstract class Usuario {
     public TipoDoUsuario getTipoDoUsuario(){
         return tipoDoUsuario;
     }
+
+    private void setCpf(String cpf){
+        ValidadorCpf.validadorCpf(cpf);
+        this.cpf = cpf;
+    }
+    private void setNome(String nome){
+        if(nome == null){
+            throw new DadosInvalidosException("Nome vazio");
+        }
+        this.nome = nome;
+    }
+
 
 
 

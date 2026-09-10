@@ -1,6 +1,6 @@
-package br.com.loja_geral.model.entidade;
+package br.com.loja_geral.model;
 
-import br.com.loja_geral.model.entidade.enums.Categoria;
+import br.com.loja_geral.model.enums.Categoria;
 
 import java.math.BigDecimal;
 

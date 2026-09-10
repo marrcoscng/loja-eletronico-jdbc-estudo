@@ -1,6 +1,4 @@
-package br.com.loja_geral.model.entidade.dao;
-
-import br.com.loja_geral.model.entidade.Pedido;
+package br.com.loja_geral.dao;
 
 public interface PedidoDAO {
 

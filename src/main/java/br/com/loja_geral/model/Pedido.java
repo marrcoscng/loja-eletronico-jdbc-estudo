@@ -1,6 +1,6 @@
-package br.com.loja_geral.model.entidade;
+package br.com.loja_geral.model;
 
-import br.com.loja_geral.model.entidade.enums.StatusPedido;
+import br.com.loja_geral.model.enums.StatusPedido;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -9,7 +9,8 @@ import java.util.UUID;
 
 public class Pedido {
 
-    private Long id;
+    private Long id_pedido;
+    private Long id_cliente;
 
     private String codigoPedido;
     private LocalDateTime momentoDoPedido;

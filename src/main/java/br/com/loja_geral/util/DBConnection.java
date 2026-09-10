@@ -1,4 +1,4 @@
-package br.com.loja_geral.model.entidade.util;
+package br.com.loja_geral.util;
 
 import br.com.loja_geral.exception.DBException;
 

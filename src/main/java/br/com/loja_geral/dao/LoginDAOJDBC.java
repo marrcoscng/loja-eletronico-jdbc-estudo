@@ -1,11 +1,11 @@
-package br.com.loja_geral.model.entidade.dao;
+package br.com.loja_geral.dao;
 
 import br.com.loja_geral.exception.DBException;
 import br.com.loja_geral.exception.SenhaInvalidaException;
 import br.com.loja_geral.exception.UsuarioNaoEncontradoException;
-import br.com.loja_geral.model.entidade.*;
-import br.com.loja_geral.model.entidade.enums.TipoDoUsuario;
-import br.com.loja_geral.model.entidade.util.DBConnection;
+import br.com.loja_geral.model.*;
+import br.com.loja_geral.model.enums.TipoDoUsuario;
+import br.com.loja_geral.util.DBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,8 +27,7 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
     @Override
     public void cadastrar(Usuario usuario) {
         String inserirUsuario = "INSERT INTO usuario(nome,cpf,email,senha,tipo_do_usuario) VALUES (?,?,?,?,?)";
-        try{
-            PreparedStatement preparedStatement = conn.prepareStatement(inserirUsuario);
+        try(PreparedStatement preparedStatement = conn.prepareStatement(inserirUsuario)){
             preparedStatement.setString(1,usuario.getNome());
             preparedStatement.setString(2,usuario.getCpf());
             preparedStatement.setString(3,usuario.getEmail().getEndereco());
@@ -36,7 +35,6 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
             preparedStatement.setString(5,usuario.getTipoDoUsuario().name());
 
             preparedStatement.executeUpdate();
-            DBConnection.closePreparedStatement(preparedStatement);
 
         }catch(SQLException e){
             throw new DBException("Erro - "+e.getMessage());

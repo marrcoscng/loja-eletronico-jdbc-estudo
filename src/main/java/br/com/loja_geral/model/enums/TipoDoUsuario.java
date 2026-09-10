@@ -1,4 +1,4 @@
-package br.com.loja_geral.model.entidade.enums;
+package br.com.loja_geral.model.enums;
 
 public enum TipoDoUsuario {
 
