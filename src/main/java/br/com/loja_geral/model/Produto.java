@@ -16,12 +16,12 @@ public class Produto  {
     private BigDecimal preco;
     private Categoria categoria;
 
-    public Produto(String nome, String descricao, String PATH_FILE, BigDecimal preco, Categoria categoria){
+    public Produto(String nome, String descricao, String PATH_FILE, BigDecimal preco){
         this.nome = nome;
         this.descricao = descricao;
         this.PATH_FILE  =PATH_FILE;
         this.preco = preco;
-        this.categoria = categoria;
+
     }
 
     public String getNome(){

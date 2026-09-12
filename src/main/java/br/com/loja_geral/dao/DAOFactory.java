@@ -8,4 +8,8 @@ public class DAOFactory {
         return new LoginDAOJDBC(conn);
     }
 
+    public static ProdutoDAO getProdutoDAO(Connection conn){
+        return new ProdutoDAOJDBC(conn);
+    }
+
 }
