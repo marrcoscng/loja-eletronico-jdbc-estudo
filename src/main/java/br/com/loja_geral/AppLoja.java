@@ -10,7 +10,7 @@ public class AppLoja {
 
         LoginController loginController = new LoginController();
 
-        loginController.cadastrar("Juliano","18999432288","@gmail.com","SenhaFraca","CLIENTE");
+        loginController.cadastrar("Thiago dos Santos Oliveira","10295914076","thiago.so@gmail.com","SenhaFraca");
 
 
     }

@@ -1,11 +1,8 @@
 package br.com.loja_geral.dao;
 
-import br.com.loja_geral.exception.DBException;
-import br.com.loja_geral.exception.SenhaInvalidaException;
-import br.com.loja_geral.exception.UsuarioNaoEncontradoException;
+import br.com.loja_geral.exception.*;
 import br.com.loja_geral.model.*;
 import br.com.loja_geral.model.enums.TipoDoUsuario;
-import br.com.loja_geral.util.DBConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +13,7 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
 
     private Connection conn = null;
 
-    public LoginDAOJDBC(Connection conn){
+    public LoginDAOJDBC(Connection conn) {
         this.conn = conn;
     }
 
@@ -27,17 +24,17 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
     @Override
     public void cadastrar(Usuario usuario) {
         String inserirUsuario = "INSERT INTO usuario(nome,cpf,email,senha,tipo_do_usuario) VALUES (?,?,?,?,?)";
-        try(PreparedStatement preparedStatement = conn.prepareStatement(inserirUsuario)){
-            preparedStatement.setString(1,usuario.getNome());
-            preparedStatement.setString(2,usuario.getCpf());
-            preparedStatement.setString(3,usuario.getEmail().getEndereco());
-            preparedStatement.setString(4,usuario.getSenha());
-            preparedStatement.setString(5,usuario.getTipoDoUsuario().name());
+        try (PreparedStatement preparedStatement = conn.prepareStatement(inserirUsuario)) {
+            preparedStatement.setString(1, usuario.getNome());
+            preparedStatement.setString(2, usuario.getCpf());
+            preparedStatement.setString(3, usuario.getEmail().getEndereco());
+            preparedStatement.setString(4, usuario.getSenha());
+            preparedStatement.setString(5, usuario.getTipoDoUsuario().name());
 
             preparedStatement.executeUpdate();
 
-        }catch(SQLException e){
-            throw new DBException("Erro - "+e.getMessage());
+        } catch (SQLException e) {
+            throw new DBException("Erro - " + e.getMessage());
         }
     }
 
@@ -47,32 +44,74 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
      * @throws UsuarioNaoEncontradoException;
      */
     @Override
-    public Usuario autenticar(String email, String senha){
+    public Usuario autenticar(String email, String senha) {
         String loginUsuario = "SELECT usr.nome, usr.cpf, usr.email, usr.senha, usr.tipo_do_usuario FROM usuario usr WHERE email = ?";
-        try{
+        try {
             PreparedStatement preparedStatement = conn.prepareStatement(loginUsuario);
-            preparedStatement.setString(1,email);
+            preparedStatement.setString(1, email);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if(resultSet.next()){
+            if (resultSet.next()) {
                 TipoDoUsuario tipoDoUsuario = TipoDoUsuario.valueOf(resultSet.getString("tipo_do_usuario").toUpperCase());
-                if(!senha.equals(resultSet.getString("senha"))){
+                if (!senha.equals(resultSet.getString("senha"))) {
                     throw new SenhaInvalidaException("Senha inválida!");
                 }
-                switch (tipoDoUsuario){
+                switch (tipoDoUsuario) {
                     case ADMIN:
-                        return new Admin(resultSet.getString("nome"),resultSet.getString("cpf"),new Email(resultSet.getString("email")),resultSet.getString("senha"));
+                        return new Admin(resultSet.getString("nome"), resultSet.getString("cpf"), new Email(resultSet.getString("email")), resultSet.getString("senha"));
                     case CLIENTE:
-                        return new Cliente(resultSet.getString("nome"),resultSet.getString("cpf"),new Email(resultSet.getString("email")),resultSet.getString("senha"));
+                        return new Cliente(resultSet.getString("nome"), resultSet.getString("cpf"), new Email(resultSet.getString("email")), resultSet.getString("senha"));
                     case GERENTE:
-                        return new Gerente(resultSet.getString("nome"),resultSet.getString("cpf"),new Email(resultSet.getString("email")),resultSet.getString("senha"));
+                        return new Gerente(resultSet.getString("nome"), resultSet.getString("cpf"), new Email(resultSet.getString("email")), resultSet.getString("senha"));
                 }
             }
             throw new UsuarioNaoEncontradoException("usuario não encontrado");
-        }catch(SQLException e){
-            throw new DBException("Erro ao buscar usuário - "+e.getMessage());
+        } catch (SQLException e) {
+            throw new DBException("Erro ao buscar usuário - " + e.getMessage());
         }
     }
+
+    /**
+     * @param usuario;
+     * @throws EmailExistenteException;
+     * @throws UsuarioJaCadastradoException;
+     */
+    @Override
+    public boolean validar(Usuario usuario) {
+        String validarDados =
+                "SELECT usr.email, usr.cpf FROM usuario usr " +
+                        "WHERE ? = usr.email OR ? = usr.cpf;";
+        boolean cpfExiste = false;
+        boolean emailExiste = false;
+
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(validarDados);
+            preparedStatement.setString(1, usuario.getEmail().getEndereco());
+            preparedStatement.setString(2, usuario.getCpf());
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String email = resultSet.getString("email");
+                String cpf = resultSet.getString("cpf");
+                if (email != null && email.equalsIgnoreCase(usuario.getEmail().getEndereco())) {
+                    emailExiste = true;
+                }
+                if (cpf != null && cpf.equals(usuario.getCpf())) {
+                    cpfExiste = true;
+                }
+            }
+            if(emailExiste) {
+                throw new EmailExistenteException("E-mail já cadastrado no sistema");
+            }
+            if(cpfExiste){
+                throw new UsuarioJaCadastradoException("Cadastro não realizado devido a dados já cadastrados no sistema!");
+            }
+        } catch (SQLException e) {
+            throw new DBException("Erro com Query "+e.getMessage());
+        }
+        return true;
+    }
+
 
 
 

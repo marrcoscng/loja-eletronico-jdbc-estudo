@@ -6,4 +6,5 @@ public interface LoginDAO<T extends Usuario> {
 
     void cadastrar(T usuario);
     T autenticar (String email, String senha);
+    boolean validar(T usuario);
 }

@@ -61,10 +61,10 @@ public abstract class Usuario {
         this.cpf = cpf;
     }
     private void setNome(String nome){
-        if(nome == null){
+        if(nome == null || nome.isBlank()){
             throw new DadosInvalidosException("Nome vazio");
         }
-        this.nome = nome;
+       this.nome = nome;
     }
 
 
