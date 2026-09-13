@@ -3,6 +3,7 @@ package br.com.loja_geral.service;
 import br.com.loja_geral.dao.DAOFactory;
 import br.com.loja_geral.dao.LoginDAO;
 import br.com.loja_geral.exception.DBException;
+import br.com.loja_geral.exception.UsuarioJaCadastradoException;
 import br.com.loja_geral.model.Usuario;
 import br.com.loja_geral.util.DBConnection;
 
@@ -16,9 +17,10 @@ public class ServiceLogin {
         try(Connection conn = DBConnection.getConnection()){
             LoginDAO loginDAO = DAOFactory.getLoginDAO(conn);
             // regra de negócio para validar existêncai de usuário no banco de dados
-            if(loginDAO.validar(user)){
-                loginDAO.cadastrar(user);
+            if(loginDAO.validarSeExistePorEmailOuCpf(user)){
+                throw new UsuarioJaCadastradoException("Usuário já cadastrado no sistema, verifique seus dados se estão corretos!");
             }
+            loginDAO.cadastrar(user);
         }catch(SQLException e){
             throw new DBException("Erro - "+e.getMessage());
         }

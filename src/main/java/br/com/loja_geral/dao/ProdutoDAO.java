@@ -11,5 +11,6 @@ public interface ProdutoDAO<T extends Produto> {
     void deletarProdutoId(Long id);
     void editarProduto(T produto);
     boolean validarProduto(Produto produto);
+    boolean procurarProdutoPorId(Long id);
 
 }

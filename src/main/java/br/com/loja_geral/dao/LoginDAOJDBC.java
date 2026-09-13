@@ -77,39 +77,24 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
      * @throws UsuarioJaCadastradoException;
      */
     @Override
-    public boolean validar(Usuario usuario) {
+    public boolean validarSeExistePorEmailOuCpf(Usuario usuario) {
+
+        // Tratar regra de negócio, essa classe não deve tratar regras de negócio.
         String validarDados =
                 "SELECT usr.email, usr.cpf FROM usuario usr " +
                         "WHERE ? = usr.email OR ? = usr.cpf;";
-        boolean cpfExiste = false;
-        boolean emailExiste = false;
 
-        try {
-            PreparedStatement preparedStatement = conn.prepareStatement(validarDados);
+        try(PreparedStatement preparedStatement = conn.prepareStatement(validarDados)) {
             preparedStatement.setString(1, usuario.getEmail().getEndereco());
             preparedStatement.setString(2, usuario.getCpf());
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                String email = resultSet.getString("email");
-                String cpf = resultSet.getString("cpf");
-                if (email != null && email.equalsIgnoreCase(usuario.getEmail().getEndereco())) {
-                    emailExiste = true;
-                }
-                if (cpf != null && cpf.equals(usuario.getCpf())) {
-                    cpfExiste = true;
-                }
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
             }
-            if(emailExiste) {
-                throw new EmailExistenteException("E-mail já cadastrado no sistema");
-            }
-            if(cpfExiste){
-                throw new UsuarioJaCadastradoException("Cadastro não realizado devido a dados já cadastrados no sistema!");
-            }
+
         } catch (SQLException e) {
             throw new DBException("Erro com Query "+e.getMessage());
         }
-        return true;
     }
 
 

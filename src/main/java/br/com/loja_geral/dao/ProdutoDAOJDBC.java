@@ -4,6 +4,7 @@ import br.com.loja_geral.exception.DBException;
 import br.com.loja_geral.exception.ProdutoJaCadastradoException;
 import br.com.loja_geral.exception.ProdutoNaoEncontradoException;
 import br.com.loja_geral.model.Produto;
+import com.google.protobuf.DescriptorProtos;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -74,8 +75,27 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
 
     @Override
     public void deletarProdutoId(Long id) {
-
+        try(PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM produto WHERE id = ?;")){
+            preparedStatement.setLong(1,id);
+            preparedStatement.executeUpdate();
+        }catch(SQLException e){
+            throw  new DBException("Erro ao injetar SQL - "+e.getMessage());
+        }
     }
+
+
+    @Override
+    public boolean procurarProdutoPorId(Long id){
+        try(PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM produto WHERE id = ?;")){
+            preparedStatement.setLong(1,id);
+            try(ResultSet resultSet = preparedStatement.executeQuery()){
+                return resultSet.next();
+            }
+        }catch(SQLException e){
+            throw new DBException("Error na Query - "+e.getMessage());
+        }
+    }
+
 
     @Override
     public void editarProduto(Produto produto) {
@@ -105,11 +125,7 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
         try(PreparedStatement preparedStatement = conn.prepareStatement(buscaProduto)){
             preparedStatement.setString(1,produto.getNome());
             try(ResultSet resultSet = preparedStatement.executeQuery()) {
-
-                if (resultSet.next()) {
-                    throw new ProdutoJaCadastradoException("Produto já cadastrado no sistema");
-                }
-                return true;
+                return resultSet.next();
             }
         }catch(SQLException e ){
             throw new DBException("Erro ao gerar ResultSet - "+e.getMessage());

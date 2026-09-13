@@ -1,9 +1,6 @@
 package br.com.loja_geral;
 
-
-import br.com.loja_geral.controller.LoginController;
 import br.com.loja_geral.controller.ProdutoController;
-import br.com.loja_geral.model.Email;
 
 import java.math.BigDecimal;
 
