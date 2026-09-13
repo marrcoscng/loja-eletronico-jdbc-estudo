@@ -7,8 +7,9 @@ public interface ProdutoDAO<T extends Produto> {
 
     void cadastrarProduto(T produto);
     ArrayList<T> buscarProdutos();
-    void buscarProdutoId(Long id);
+    T buscarProdutoId(Long id);
     void deletarProdutoId(Long id);
-    T editarProdutoId(Long id);
+    void editarProduto(T produto);
+    boolean validarProduto(Produto produto);
 
 }

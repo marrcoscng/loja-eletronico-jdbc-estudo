@@ -86,5 +86,10 @@ public class Produto  {
         this.categoria = categoria;
     }
 
+    // melhorar futuramente ->
+    public void setId(Long id){
+        this.id = id;
+    }
+
 
 }
