@@ -5,27 +5,28 @@ import br.com.loja_geral.model.enums.StatusPedido;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Pedido {
 
-    private Long id_pedido;
-    private Long id_cliente;
+    private Long idPedido;
+    private Long idCliente;
 
     private String codigoPedido;
     private LocalDateTime momentoDoPedido;
     private StatusPedido statusPedido;
-    private ArrayList<ItemPedido> itens;
+    private List<ItemPedido> itens;
 
 
-    public Pedido(Long id_cliente, ArrayList<ItemPedido> lista){
+    public Pedido(Long idCliente, List<ItemPedido> lista){
 
-        this.id_cliente = id_cliente;
+        this.idCliente = idCliente;
 
         this.codigoPedido = UUID.randomUUID().toString();
         this.momentoDoPedido = LocalDateTime.now();
         this.statusPedido = StatusPedido.AGUARDANDO_CONFIRMACAO;
-        itens = lista;
+        itens =(lista!=null)? lista: new ArrayList<>();
 
     }
 
@@ -55,12 +56,12 @@ public class Pedido {
         this.statusPedido = statusPedido;
     }
 
-    public Long getId_pedido(){
-        return id_pedido;
+    public Long getIdPedido(){
+        return idPedido;
     }
 
-    public Long getId_cliente(){
-        return id_cliente;
+    public Long getIdCliente(){
+        return idCliente;
     }
 
 }

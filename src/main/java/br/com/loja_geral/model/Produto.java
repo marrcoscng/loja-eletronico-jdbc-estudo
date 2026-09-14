@@ -3,10 +3,11 @@ package br.com.loja_geral.model;
 import br.com.loja_geral.exception.DadoInvalidoDoProdutoException;
 import br.com.loja_geral.exception.PrecoInvalidoException;
 import br.com.loja_geral.model.enums.Categoria;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 
-public class Produto  {
+public class Produto implements Comparable<Produto> {
 
     private Long id;
 
@@ -91,5 +92,8 @@ public class Produto  {
         this.id = id;
     }
 
-
+    @Override
+    public int compareTo(@NotNull Produto produto) {
+        return this.nome.compareToIgnoreCase(produto.getNome());
+    }
 }
