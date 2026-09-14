@@ -7,7 +7,6 @@ import br.com.loja_geral.model.Produto;
 import br.com.loja_geral.service.ServiceProduto;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 
 public class ProdutoController {
 

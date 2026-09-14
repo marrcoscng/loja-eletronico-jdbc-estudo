@@ -1,11 +1,8 @@
 package br.com.loja_geral.dao;
 
 import br.com.loja_geral.exception.DBException;
-import br.com.loja_geral.exception.ProdutoJaCadastradoException;
 import br.com.loja_geral.exception.ProdutoNaoEncontradoException;
 import br.com.loja_geral.model.Produto;
-import com.google.protobuf.DescriptorProtos;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -101,10 +98,10 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
     public void editarProduto(Produto produto) {
         String alterarProduto = "UPDATE produto " +
                 "SET nome = ?, " +
-                "descricao = ? " +
-                "path_file = ? " +
-                "preco = ? "+
-                "WHERE id = ?";
+                "descricao = ?, " +
+                "path_file = ?, " +
+                "preco = ?, "+
+                "WHERE id = ?;";
         try(PreparedStatement preparedStatement = conn.prepareStatement(alterarProduto)){
             preparedStatement.setString(1,produto.getNome());
             preparedStatement.setString(2,produto.getDescricao());
