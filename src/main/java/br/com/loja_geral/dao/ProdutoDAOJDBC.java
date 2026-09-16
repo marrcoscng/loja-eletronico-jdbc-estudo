@@ -20,13 +20,20 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
     @Override
     public void cadastrarProduto(Produto produto){
         String inserirBD = "INSERT INTO produto (nome,descricao,path_file,preco) VALUES (?,?,?,?);";
-        try (PreparedStatement preparedStatement = conn.prepareStatement(inserirBD)){
+        try (PreparedStatement preparedStatement = conn.prepareStatement(inserirBD,PreparedStatement.RETURN_GENERATED_KEYS)){
             preparedStatement.setString(1,produto.getNome());
             preparedStatement.setString(2,produto.getDescricao());
             preparedStatement.setString(3,produto.getPATH_FILE());
             preparedStatement.setBigDecimal(4,produto.getPreco());
 
             preparedStatement.executeUpdate();
+
+            try(ResultSet resultSet = preparedStatement.getGeneratedKeys()){
+                if(resultSet.next()){
+                    Long idProduto = resultSet.getLong(1);
+                    produto.setId(idProduto);
+                }
+            }
         }catch(SQLException e){
             throw new DBException("Erro Query - "+e.getMessage());
         }

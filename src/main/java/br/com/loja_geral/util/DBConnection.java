@@ -15,18 +15,15 @@ public class DBConnection {
 
     private static Connection conn = null;
 
-
     public static Connection getConnection(){
-        if(conn == null){
             try {
                 Properties prop = loadProperties();
                 String url = prop.getProperty("url");
                 conn = DriverManager.getConnection(url, prop);
+                return conn;
             }catch(SQLException e){
                 throw new DBException("Erro ao tentar conectar com o banco de dados - "+e.getMessage());
             }
-        }
-        return conn;
     }
 
     public static void closeConnection(Connection conn){

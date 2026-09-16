@@ -1,6 +1,7 @@
 package br.com.loja_geral.dao;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class DAOFactory {
 
@@ -12,6 +13,8 @@ public class DAOFactory {
         return new ProdutoDAOJDBC(conn);
     }
 
-
+    public static PedidoDAO getPedidoDAO(Connection conn) {
+        return new PedidoDAOJDBC(conn);
+    }
 
 }

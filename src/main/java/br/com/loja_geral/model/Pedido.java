@@ -13,24 +13,36 @@ public class Pedido {
     private Long idPedido;
     private Long idCliente;
 
-    private String codigoPedido;
+    private UUID codigoPedido;
     private LocalDateTime momentoDoPedido;
     private StatusPedido statusPedido;
     private List<ItemPedido> itens;
 
 
+    // -> Construtor para negócio
     public Pedido(Long idCliente, List<ItemPedido> lista){
 
         this.idCliente = idCliente;
 
-        this.codigoPedido = UUID.randomUUID().toString();
+        this.codigoPedido = UUID.randomUUID();
         this.momentoDoPedido = LocalDateTime.now();
         this.statusPedido = StatusPedido.AGUARDANDO_CONFIRMACAO;
         itens =(lista!=null)? lista: new ArrayList<>();
 
     }
 
-    public String getCodigoPedido(){
+    // -> Construtor para busca em Banco de Dados
+    public Pedido(Long idCliente, UUID codigoPedido, LocalDateTime momentoDoPedido, StatusPedido statusPedido, List<ItemPedido> itens ){
+
+        this.idCliente = idCliente;
+        this.codigoPedido = codigoPedido;
+        this.momentoDoPedido = momentoDoPedido;
+        this.statusPedido = statusPedido;
+        this.itens = itens;
+
+    }
+
+    public UUID getCodigoPedido(){
         return codigoPedido;
     }
 
@@ -64,4 +76,15 @@ public class Pedido {
         return idCliente;
     }
 
+    public List<ItemPedido> getListaItens(){
+        return new ArrayList<>(itens);
+    }
+
+
+    public void setIdCliente(Long idCliente){
+        if(idCliente == null || idCliente<0){
+            return;
+        }
+        this.idCliente = idCliente;
+    }
 }
