@@ -1,7 +1,5 @@
 package br.com.loja_geral.dao;
 
-import br.com.loja_geral.exception.DBException;
-import br.com.loja_geral.exception.StatusMaximoException;
 import br.com.loja_geral.model.Pedido;
 import br.com.loja_geral.model.enums.StatusPedido;
 
@@ -40,13 +38,7 @@ public class PedidoDAOJDBC implements PedidoDAO<Pedido>{
     }
 
     @Override
-    public void atualizarStatusPedido(Pedido pedido) {
-
-        StatusPedido statusPedido = pedido.getStatusPedido().getProximo();
-        if(statusPedido == null){
-            return;
-        }
-        pedido.getStatusPedido().getProximo();
+    public void atualizarStatusPedido(Pedido pedido) throws SQLException{
 
         String atualizarPedido = "UPDATE pedido SET status_pedido = ? WHERE id = ?;";
         try(PreparedStatement preparedStatement = conn.prepareStatement(atualizarPedido)){
@@ -54,18 +46,16 @@ public class PedidoDAOJDBC implements PedidoDAO<Pedido>{
             preparedStatement.setLong(2, pedido.getIdPedido());
             preparedStatement.executeUpdate();
 
-        }catch(SQLException e){
-            throw new DBException("Erro ao tentar atualizar status do pedido - "+e.getMessage());
         }
     }
 
     @Override
-    public void cancelarPedido(Long idPedido) {
+    public void cancelarPedido(Long idPedido)  {
 
     }
 
     @Override
-    public void salvarPedido(Pedido pedido){
+    public void salvarPedido(Pedido pedido)  throws SQLException{
         String enviarPedido = "INSERT INTO pedido(id_cliente, codigo_pedido, momento_do_pedido, status_pedido ) VALUES (?,?,?,?);";
             try (PreparedStatement preparedStatement = conn.prepareStatement(enviarPedido, PreparedStatement.RETURN_GENERATED_KEYS)) {
                 System.out.println(pedido.getStatusPedido().toString());
@@ -90,8 +80,6 @@ public class PedidoDAOJDBC implements PedidoDAO<Pedido>{
                         }
                     }
                 }
-        }catch(SQLException e){
-            System.err.println("Erro ao tentar salvar pedido! "+e.getMessage());
         }
     }
 }

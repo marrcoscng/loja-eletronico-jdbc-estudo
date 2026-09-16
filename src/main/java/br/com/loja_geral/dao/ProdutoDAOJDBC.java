@@ -1,6 +1,5 @@
 package br.com.loja_geral.dao;
 
-import br.com.loja_geral.exception.DBException;
 import br.com.loja_geral.exception.ProdutoNaoEncontradoException;
 import br.com.loja_geral.model.Produto;
 import java.sql.Connection;
@@ -18,7 +17,7 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
     }
 
     @Override
-    public void cadastrarProduto(Produto produto){
+    public void cadastrarProduto(Produto produto) throws SQLException{
         String inserirBD = "INSERT INTO produto (nome,descricao,path_file,preco) VALUES (?,?,?,?);";
         try (PreparedStatement preparedStatement = conn.prepareStatement(inserirBD,PreparedStatement.RETURN_GENERATED_KEYS)){
             preparedStatement.setString(1,produto.getNome());
@@ -34,13 +33,11 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
                     produto.setId(idProduto);
                 }
             }
-        }catch(SQLException e){
-            throw new DBException("Erro Query - "+e.getMessage());
         }
     }
 
     @Override
-    public ArrayList<Produto> buscarProdutos() {
+    public ArrayList<Produto> buscarProdutos()  throws SQLException{
         ArrayList<Produto> listaProdutos = new ArrayList<>();
 
         try(PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM produto;")){
@@ -52,14 +49,11 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
                 }
             }
             return listaProdutos;
-        }catch(SQLException e){
-            throw new DBException("Error on Query - "+e.getMessage());
-
         }
     }
 
     @Override
-    public Produto buscarProdutoId(Long id) {
+    public Produto buscarProdutoId(Long id) throws SQLException {
         String buscarProduto = "SELECT * FROM produto WHERE id = ?";
         try(PreparedStatement preparedStatement = conn.prepareStatement(buscarProduto);){
             preparedStatement.setLong(1,id);
@@ -72,37 +66,31 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
                     throw new ProdutoNaoEncontradoException("Produto não encontrado");
                 }
             }
-        }catch(SQLException e){
-            throw new DBException("Error em sql - "+e.getMessage());
         }
     }
 
     @Override
-    public void deletarProdutoId(Long id) {
+    public void deletarProdutoId(Long id) throws SQLException {
         try(PreparedStatement preparedStatement = conn.prepareStatement("DELETE FROM produto WHERE id = ?;")){
             preparedStatement.setLong(1,id);
             preparedStatement.executeUpdate();
-        }catch(SQLException e){
-            throw  new DBException("Erro ao injetar SQL - "+e.getMessage());
         }
     }
 
 
     @Override
-    public boolean procurarProdutoPorId(Long id){
+    public boolean procurarProdutoPorId(Long id) throws SQLException{
         try(PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM produto WHERE id = ?;")){
             preparedStatement.setLong(1,id);
             try(ResultSet resultSet = preparedStatement.executeQuery()){
                 return resultSet.next();
             }
-        }catch(SQLException e){
-            throw new DBException("Error na Query - "+e.getMessage());
         }
     }
 
 
     @Override
-    public void editarProduto(Produto produto) {
+    public void editarProduto(Produto produto) throws SQLException {
         String alterarProduto = "UPDATE produto " +
                 "SET nome = ?, " +
                 "descricao = ?, " +
@@ -117,22 +105,17 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
             preparedStatement.setLong(5,produto.getId());
 
             preparedStatement.executeUpdate();
-        }catch(SQLException e){
-            throw new DBException("Error update product - "+e.getMessage());
         }
-
     }
 
     @Override
-    public boolean validarProduto(Produto produto) {
+    public boolean validarProduto(Produto produto) throws SQLException {
         String buscaProduto = "SELECT p.nome FROM produto p WHERE p.nome = ?";
         try(PreparedStatement preparedStatement = conn.prepareStatement(buscaProduto)){
             preparedStatement.setString(1,produto.getNome());
             try(ResultSet resultSet = preparedStatement.executeQuery()) {
                 return resultSet.next();
             }
-        }catch(SQLException e ){
-            throw new DBException("Erro ao gerar ResultSet - "+e.getMessage());
         }
     }
 

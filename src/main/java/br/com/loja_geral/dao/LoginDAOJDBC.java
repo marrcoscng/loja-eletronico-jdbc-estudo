@@ -19,7 +19,7 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
      * @throws DBException;
      */
     @Override
-    public void cadastrar(Usuario usuario) {
+    public void cadastrar(Usuario usuario)  throws SQLException {
         String inserirUsuario = "INSERT INTO usuario(nome,cpf,email,senha,tipo_do_usuario) VALUES (?,?,?,?,?)";
         try (PreparedStatement preparedStatement = conn.prepareStatement(inserirUsuario,Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, usuario.getNome());
@@ -37,8 +37,6 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
                 }
             }
 
-        } catch (SQLException e) {
-            throw new DBException("Erro - " + e.getMessage());
         }
     }
 
@@ -48,7 +46,7 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
      * @throws UsuarioNaoEncontradoException;
      */
     @Override
-    public Usuario autenticar(String email, String senha) {
+    public Usuario autenticar(String email, String senha)  throws SQLException {
         String loginUsuario = "SELECT usr.id, usr.nome, usr.cpf, usr.email, usr.senha, usr.tipo_do_usuario FROM usuario usr WHERE email = ?";
         try(PreparedStatement preparedStatement = conn.prepareStatement(loginUsuario)) {
             preparedStatement.setString(1, email);
@@ -69,8 +67,6 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
                 }
             }
             throw new UsuarioNaoEncontradoException("usuario não encontrado");
-        } catch (SQLException e) {
-            throw new DBException("Erro ao buscar usuário - " + e.getMessage());
         }
     }
 
@@ -80,7 +76,7 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
      * @throws UsuarioJaCadastradoException;
      */
     @Override
-    public boolean validarSeExistePorEmailOuCpf(Usuario usuario) {
+    public boolean validarSeExistePorEmailOuCpf(Usuario usuario) throws SQLException {
 
         // Tratar regra de negócio, essa classe não deve tratar regras de negócio.
         String validarDados =
@@ -95,8 +91,6 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
                 return resultSet.next();
             }
 
-        } catch (SQLException e) {
-            throw new DBException("Erro com Query "+e.getMessage());
         }
     }
 

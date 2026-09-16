@@ -16,27 +16,46 @@ public class ServiceProduto {
 
         // Iniciamos a connection pelo pacote Service. Dentro de um try-resources-catch para que ela seja fechada assim que acabar com o procedimento necessario.
         try(Connection conn = DBConnection.getConnection()){
-
-            ProdutoDAO produtoDAOJDBC = DAOFactory.getProdutoDAO(conn);
-            if(produtoDAOJDBC.validarProduto(produto)){
-                throw new ProdutoJaCadastradoException("Produto já cadastrado");
+            try {
+                conn.setAutoCommit(false);
+                ProdutoDAO produtoDAOJDBC = DAOFactory.getProdutoDAO(conn);
+                if (produtoDAOJDBC.validarProduto(produto)) {
+                    throw new ProdutoJaCadastradoException("Produto já cadastrado");
+                }
+                produtoDAOJDBC.cadastrarProduto(produto);
+                conn.commit();
+            }catch(SQLException er){
+                try {
+                    conn.rollback();
+                    throw new DBException("Erro ao salvar pedido - " + er.getMessage());
+                }catch(SQLException rollback){
+                    throw new DBException("Erro ao inicializar rollback - "+rollback.getMessage());
+                }
             }
-            produtoDAOJDBC.cadastrarProduto(produto);
-
         }catch(SQLException e){
-            System.err.println("Erro ao tentar salvar produto - "+e.getMessage());
+            throw new DBException("Erro ao conectar banco de dados - "+e.getMessage());
         }
     }
 
     public void deletarProdutoPorId(Long id){
         try(Connection conn = DBConnection.getConnection()){
-            ProdutoDAO produtoDAO = DAOFactory.getProdutoDAO(conn);
+            try {
+                conn.setAutoCommit(false);
+                ProdutoDAO produtoDAO = DAOFactory.getProdutoDAO(conn);
 
-            if(!produtoDAO.procurarProdutoPorId(id)){
-                throw new ProdutoJaCadastradoException("Produto não encontrado no sistema!");
+                if (!produtoDAO.procurarProdutoPorId(id)) {
+                    throw new ProdutoJaCadastradoException("Produto não encontrado no sistema!");
+                }
+                produtoDAO.deletarProdutoId(id);
+                conn.commit();
+            }catch(SQLException rollback){
+                try {
+                    conn.rollback();
+                    throw new DBException("Produto não deletado -- rollback atvado " + rollback.getMessage());
+                }catch(SQLException er){
+                    throw new DBException("Erro ao chamar rollback - "+er.getMessage());
+                }
             }
-            produtoDAO.deletarProdutoId(id);
-
         }catch(SQLException e){
             throw new DBException("Erro ao conversar com Banco de dados - "+e.getMessage());
         }
