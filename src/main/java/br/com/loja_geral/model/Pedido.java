@@ -1,5 +1,6 @@
 package br.com.loja_geral.model;
 
+import br.com.loja_geral.exception.DadoInvalidoDoProdutoException;
 import br.com.loja_geral.model.enums.StatusPedido;
 
 import java.math.BigDecimal;
@@ -65,7 +66,9 @@ public class Pedido {
     }
 
     public void setStatusPedido(StatusPedido statusPedido){
-        this.statusPedido = statusPedido;
+        if(statusPedido.getPeso()-1 == this.statusPedido.getPeso()) {
+            this.statusPedido = statusPedido;
+        }
     }
 
     public Long getIdPedido(){
@@ -86,5 +89,16 @@ public class Pedido {
             return;
         }
         this.idCliente = idCliente;
+    }
+
+    /**
+     * @param idPedido;
+     * @throws DadoInvalidoDoProdutoException;
+     */
+    public void setIdPedido(Long idPedido){
+        if(idPedido == null){
+            throw new DadoInvalidoDoProdutoException("Id inválido ");
+        }
+        this.idPedido = idPedido;
     }
 }

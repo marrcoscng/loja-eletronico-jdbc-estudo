@@ -1,6 +1,7 @@
 package br.com.loja_geral.dao;
 
 import br.com.loja_geral.exception.DBException;
+import br.com.loja_geral.exception.StatusMaximoException;
 import br.com.loja_geral.model.Pedido;
 import br.com.loja_geral.model.enums.StatusPedido;
 
@@ -39,13 +40,23 @@ public class PedidoDAOJDBC implements PedidoDAO<Pedido>{
     }
 
     @Override
-    public void atualizarStatusPedido(Long idPedido, StatusPedido novoStatus) {
+    public void atualizarStatusPedido(Pedido pedido) {
 
-    }
+        StatusPedido statusPedido = pedido.getStatusPedido().getProximo();
+        if(statusPedido == null){
+            return;
+        }
+        pedido.getStatusPedido().getProximo();
 
-    @Override
-    public void marcarComoEntregue(Long idPedido) {
+        String atualizarPedido = "UPDATE pedido SET status_pedido = ? WHERE id = ?;";
+        try(PreparedStatement preparedStatement = conn.prepareStatement(atualizarPedido)){
+            preparedStatement.setString(1, pedido.getStatusPedido().name());
+            preparedStatement.setLong(2, pedido.getIdPedido());
+            preparedStatement.executeUpdate();
 
+        }catch(SQLException e){
+            throw new DBException("Erro ao tentar atualizar status do pedido - "+e.getMessage());
+        }
     }
 
     @Override

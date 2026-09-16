@@ -23,4 +23,13 @@ public enum StatusPedido {
     public String getStatus(){
         return status;
     }
+
+    public StatusPedido getProximo(){
+        for(StatusPedido status : StatusPedido.values()){
+            if(status.getPeso() == this.peso+1){
+                return status;
+            }
+        }
+        return null;
+    }
 }

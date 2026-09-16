@@ -11,8 +11,7 @@ public interface PedidoDAO <T extends Pedido>{
     List<Pedido> listaDePedidsoPorClienteId(Long idCliente);
     List<Pedido> listaDePedidosPorStatus(StatusPedido statusPedido);
     String obterCodigoDeRastreio(Long idPedido);
-    void atualizarStatusPedido(Long idPedido, StatusPedido novoStatus);
-    void marcarComoEntregue(Long idPedido);
+    void atualizarStatusPedido(Pedido pedido);
     void cancelarPedido(Long idPedido);
     void salvarPedido(T pedido);
 
