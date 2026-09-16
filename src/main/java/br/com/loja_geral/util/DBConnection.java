@@ -26,26 +26,6 @@ public class DBConnection {
             }
     }
 
-    public static void closeConnection(Connection conn){
-        if(conn!=null){
-            try{
-                conn.close();
-            }catch(SQLException e){
-                throw new DBException("Erro ao fechar acesso ao banco de dados - "+e.getMessage());
-            }
-        }
-    }
-
-    public static void closePreparedStatement(Statement st){
-        if(st!=null){
-            try{
-                st.close();
-            }catch(SQLException e){
-                throw new DBException("Erro ao fechar ponte Statement - "+e.getMessage());
-            }
-        }
-    }
-
     private static Properties loadProperties(){
         try(FileInputStream fs = new FileInputStream("db.properties")){
             Properties prop = new Properties();
