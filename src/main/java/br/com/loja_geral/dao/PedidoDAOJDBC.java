@@ -1,13 +1,17 @@
 package br.com.loja_geral.dao;
 
+import br.com.loja_geral.model.ItemPedido;
 import br.com.loja_geral.model.Pedido;
+import br.com.loja_geral.model.Produto;
 import br.com.loja_geral.model.enums.StatusPedido;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class PedidoDAOJDBC implements PedidoDAO<Pedido>{
 
@@ -23,13 +27,53 @@ public class PedidoDAOJDBC implements PedidoDAO<Pedido>{
     }
 
     @Override
-    public List<Pedido> listaDePedidsoPorClienteId(Long idCliente) {
-        return List.of();
+    public Map<UUID,Pedido> listaDePedidsoPorClienteId(Long idCliente) throws SQLException {
+
+        Map<UUID,Pedido> pedidos = new LinkedHashMap<>();
+        String listaDePedidosPorCliente =
+                "SELECT pedido.id AS id_pedido, pedido.id_cliente, pedido.momento_do_pedido, pedido.codigo_pedido, pedido.status_pedido, produto.nome, produto.descricao, produto.path_file, produto.preco, itens_pedido.quantidade FROM pedido "+
+                "INNER JOIN itens_pedido ON itens_pedido.id_pedido = pedido.id "+
+                "INNER JOIN produto ON produto.id = itens_pedido.id_produto "+
+                "WHERE pedido.id_cliente = ? "+
+                "ORDER BY pedido.id ASC;";
+
+        try(PreparedStatement preparedStatement = conn.prepareStatement(listaDePedidosPorCliente)){
+            preparedStatement.setLong(1,idCliente);
+            try(ResultSet resultSet = preparedStatement.executeQuery()){
+
+                while(resultSet.next()){
+
+                    UUID codigo_pedido = resultSet.getObject("codigo_pedido",UUID.class);
+
+                    if(!pedidos.containsKey(codigo_pedido)){
+                        Long id_pedido = resultSet.getLong("id_pedido");
+                        Long id_cliente = resultSet.getLong("id_cliente");
+                        LocalDateTime momento_do_pedido = resultSet.getObject("momento_do_pedido",LocalDateTime.class);
+                        StatusPedido statusPedido = StatusPedido.valueOf(resultSet.getString("status_pedido"));
+
+                        Pedido pedido = new Pedido(id_pedido, id_cliente, codigo_pedido, momento_do_pedido, statusPedido, new ArrayList<>());
+                        pedidos.put(codigo_pedido,pedido);
+
+                    }
+
+                    String nome = resultSet.getString("nome");
+                    String descricao = resultSet.getString("descricao");
+                    String path_file = resultSet.getString("path_file");
+                    BigDecimal preco = resultSet.getObject("preco",BigDecimal.class);
+                    Integer quantidade = resultSet.getInt("quantidade");
+
+                    Produto produto = new Produto(nome,descricao,path_file,preco);
+                    pedidos.get(codigo_pedido).getListaItens().add(new ItemPedido(produto,quantidade));
+
+                }
+            }
+        }
+        return pedidos;
     }
 
     @Override
-    public List<Pedido> listaDePedidosPorStatus(StatusPedido statusPedido) {
-        return List.of();
+    public Map<StatusPedido,Pedido> listaDePedidosPorStatus(StatusPedido statusPedido) {
+        return new HashMap<>();
     }
 
     @Override

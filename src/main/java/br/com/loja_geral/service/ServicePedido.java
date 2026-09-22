@@ -9,6 +9,8 @@ import br.com.loja_geral.util.DBConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.UUID;
 
 public class ServicePedido {
 
@@ -50,6 +52,16 @@ public class ServicePedido {
 
         }catch(SQLException e){
             throw new DBException("Erro ao conectar banco de dados - "+e.getMessage());
+        }
+    }
+
+    public Map<UUID,Pedido> listaDePedidosPorClienteId(Long idCliente){
+
+        try(Connection conn = DBConnection.getConnection()){
+            PedidoDAO pedidoDAO = DAOFactory.getPedidoDAO(conn);
+            return pedidoDAO.listaDePedidsoPorClienteId(idCliente);
+        }catch(SQLException e){
+            throw new DBException("Erro ao buscar pedidos - "+e.getMessage());
         }
     }
 

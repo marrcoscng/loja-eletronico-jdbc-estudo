@@ -8,11 +8,15 @@ import br.com.loja_geral.service.ServiceLogin;
 
 public class LoginController {
 
+    private final ServiceLogin serviceLogin;
+
+    public LoginController(ServiceLogin serviceLogin){
+        this.serviceLogin = serviceLogin;
+    }
+
     public void cadastrar(String nome, String cpf, String email, String senha){
         try{
             Usuario user = new Cliente(nome,cpf,new Email(email),senha);
-
-            ServiceLogin serviceLogin = new ServiceLogin();
             serviceLogin.serviceCadastro(user);
 
         }catch(EmailExistenteException e){

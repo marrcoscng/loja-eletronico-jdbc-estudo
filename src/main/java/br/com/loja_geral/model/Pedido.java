@@ -33,8 +33,9 @@ public class Pedido {
     }
 
     // -> Construtor para busca em Banco de Dados
-    public Pedido(Long idCliente, UUID codigoPedido, LocalDateTime momentoDoPedido, StatusPedido statusPedido, List<ItemPedido> itens ){
+    public Pedido(Long idPedido, Long idCliente, UUID codigoPedido, LocalDateTime momentoDoPedido, StatusPedido statusPedido, List<ItemPedido> itens ){
 
+        this.idPedido = idPedido;
         this.idCliente = idCliente;
         this.codigoPedido = codigoPedido;
         this.momentoDoPedido = momentoDoPedido;

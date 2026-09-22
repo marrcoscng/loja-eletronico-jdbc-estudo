@@ -10,10 +10,15 @@ import java.math.BigDecimal;
 
 public class ProdutoController {
 
+    private final ServiceProduto serviceProduto;
+
+    public ProdutoController(ServiceProduto serviceProduto){
+        this.serviceProduto = serviceProduto;
+    }
+
     public void salvarProduto(String nome, String descricao, String PATH_FILE, BigDecimal preco){
         try {
             Produto produto = new Produto(nome, descricao, PATH_FILE, preco);
-            ServiceProduto serviceProduto = new ServiceProduto();
             serviceProduto.salvarProduto(produto);
         }catch(PrecoInvalidoException e){
             System.err.println("Error preco - "+e.getMessage());
