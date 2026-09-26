@@ -1,9 +1,8 @@
 package br.com.loja_geral.view;
 
 import br.com.loja_geral.controller.LoginController;
-import br.com.loja_geral.model.Cliente;
-import br.com.loja_geral.model.Email;
 import br.com.loja_geral.model.Usuario;
+import br.com.loja_geral.model.enums.TipoDoUsuario;
 import br.com.loja_geral.service.ServiceLogin;
 import br.com.loja_geral.util.SessaoUsuario;
 import javafx.geometry.Insets;
@@ -14,14 +13,11 @@ import javafx.scene.layout.VBox;
 
 public class TelaLoginView implements Tela {
 
-    Usuario usuario = SessaoUsuario.getUsuarioLogado();
-
     private final VBox root;
     private final LoginController loginController;
 
     public TelaLoginView(Navegador navegador) {
         this.loginController = new LoginController(new ServiceLogin());
-
 
         root = new VBox(15);
         root.setAlignment(Pos.CENTER);
@@ -52,7 +48,6 @@ public class TelaLoginView implements Tela {
         linkCadastro.setStyle("-fx-text-fill: #0066C0; -fx-underline: false;");
         linkCadastro.setOnAction(e -> navegador.irPara(TelaCadastroView.class, () -> new TelaCadastroView(navegador)));
 
-
         // ==========================================
         // LÓGICA DO BOTÃO LOGIN
         // ==========================================
@@ -67,17 +62,27 @@ public class TelaLoginView implements Tela {
             }
 
             try {
-                // 2. Busca e valida o usuário no banco de dados
+                // 2. Autentica e inicia a sessão
                 SessaoUsuario.encerrarSessao();
-                SessaoUsuario.iniciarSessao(loginController.autenticar(email,senha));
+                Usuario usuarioAutenticado = loginController.autenticar(email, senha);
+                SessaoUsuario.iniciarSessao(usuarioAutenticado);
 
+                TipoDoUsuario tipo = usuarioAutenticado.getTipoDoUsuario();
 
-                // 4. Redireciona para o Dashboard do Cliente
-                navegador.irPara(
-                        TelaClienteDashboardView.class,
-                        () -> new TelaClienteDashboardView(navegador)
-                );
-
+                // 3. Redirecionamento por tipo de perfil
+                if (TipoDoUsuario.CLIENTE.equals(tipo)) {
+                    navegador.irPara(
+                            TelaClienteDashboardView.class,
+                            () -> new TelaClienteDashboardView(navegador)
+                    );
+                } else if (TipoDoUsuario.GERENTE.equals(tipo)) {
+                    navegador.irPara(
+                            TelaGerenteDashboardView.class,
+                            () -> new TelaGerenteDashboardView(navegador)
+                    );
+                } else {
+                    exibirAlerta(Alert.AlertType.ERROR, "Acesso Negado", "Perfil de usuário não reconhecido.");
+                }
 
             } catch (IllegalArgumentException e) {
                 // Tratamento de credenciais incorretas
@@ -114,7 +119,7 @@ public class TelaLoginView implements Tela {
 
     @Override
     public void aoExibir() {
-        // Limpa os campos quando a tela é carregada
+        // Limpa os campos/sessão quando a tela é carregada
         SessaoUsuario.encerrarSessao();
     }
 }
