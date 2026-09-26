@@ -18,11 +18,20 @@ public class ServiceLogin {
             LoginDAO loginDAO = DAOFactory.getLoginDAO(conn);
             // regra de negócio para validar existêncai de usuário no banco de dados
             if(loginDAO.validarSeExistePorEmailOuCpf(user)){
-                throw new UsuarioJaCadastradoException("Usuário já cadastrado no sistema, verifique seus dados se estão corretos!");
+                throw new UsuarioJaCadastradoException("Dados incorretos!");
             }
             loginDAO.cadastrar(user);
         }catch(SQLException e){
             throw new DBException("Erro - "+e.getMessage());
+        }
+    }
+
+    public Usuario autenticar(String email,String senha){
+        try(Connection conn = DBConnection.getConnection()){
+            LoginDAO loginDAO = DAOFactory.getLoginDAO(conn);
+            return loginDAO.autenticar(email,senha);
+        }catch(SQLException e){
+            throw new DBException("Erro ao consultar DB "+e.getMessage());
         }
     }
 

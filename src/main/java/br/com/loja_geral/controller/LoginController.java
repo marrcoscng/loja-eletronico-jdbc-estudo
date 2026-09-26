@@ -19,17 +19,12 @@ public class LoginController {
             Usuario user = new Cliente(nome,cpf,new Email(email),senha);
             serviceLogin.serviceCadastro(user);
 
-        }catch(EmailExistenteException e){
-            System.err.println(e.getMessage());
-        }catch(UsuarioJaCadastradoException e){
-            System.err.println("Usuaário já cadastrado: "+e.getMessage());
-        }catch(DocumentoInvalidoException e){
-            System.err.println("Erro "+ e.getMessage());
-        }catch(EmailException e){
-            System.err.println("Erro: "+e.getMessage());
         }catch(DBException e){
             System.err.println("Erro em Query para o banco de dados"+e.getMessage());
         }
+    }
 
+    public Usuario autenticar(String email, String senha){
+        return serviceLogin.autenticar(email,senha);
     }
 }

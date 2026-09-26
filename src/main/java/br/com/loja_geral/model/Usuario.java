@@ -56,11 +56,11 @@ public abstract class Usuario {
         return tipoDoUsuario;
     }
 
-    private void setCpf(String cpf){
+    public void setCpf(String cpf){
         ValidadorCpf.validadorCpf(cpf);
         this.cpf = cpf;
     }
-    private void setNome(String nome){
+    public void setNome(String nome){
         if(nome == null || nome.isBlank()){
             throw new DadosInvalidosException("Nome vazio");
         }

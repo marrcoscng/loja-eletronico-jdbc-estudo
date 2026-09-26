@@ -1,83 +1,120 @@
 package br.com.loja_geral.view;
 
+import br.com.loja_geral.controller.LoginController;
+import br.com.loja_geral.model.Cliente;
+import br.com.loja_geral.model.Email;
+import br.com.loja_geral.model.Usuario;
+import br.com.loja_geral.service.ServiceLogin;
+import br.com.loja_geral.util.SessaoUsuario;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
 public class TelaLoginView implements Tela {
 
-    private final StackPane container;
-    private final TextField txtEmail;
-    private final PasswordField passSenha;
+    Usuario usuario = SessaoUsuario.getUsuarioLogado();
+
+    private final VBox root;
+    private final LoginController loginController;
 
     public TelaLoginView(Navegador navegador) {
-        Label titleLabel = new Label("Acessar Conta");
-        titleLabel.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1A202C;");
+        this.loginController = new LoginController(new ServiceLogin());
 
-        Label labelEmail = new Label("E-mail");
-        labelEmail.setStyle("-fx-font-weight: bold; -fx-text-fill: #4A5568;");
-        txtEmail = new TextField();
+
+        root = new VBox(15);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(30));
+        root.setStyle("-fx-background-color: #F4F6F8;");
+
+        VBox cardLogin = new VBox(12);
+        cardLogin.setMaxWidth(380);
+        cardLogin.setPadding(new Insets(25));
+        cardLogin.setStyle("-fx-background-color: white; -fx-background-radius: 8px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 2);");
+
+        Label lblTitulo = new Label("Entrar na sua Conta");
+        lblTitulo.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0F1111;");
+
+        TextField txtEmail = new TextField();
         txtEmail.setPromptText("Digite seu e-mail");
-        txtEmail.setMaxWidth(Double.MAX_VALUE);
+        txtEmail.setStyle("-fx-padding: 10px;");
 
-        Label labelSenha = new Label("Senha");
-        labelSenha.setStyle("-fx-font-weight: bold; -fx-text-fill: #4A5568;");
-        passSenha = new PasswordField();
-        passSenha.setPromptText("Digite sua senha");
-        passSenha.setMaxWidth(Double.MAX_VALUE);
+        PasswordField txtSenha = new PasswordField();
+        txtSenha.setPromptText("Digite sua senha");
+        txtSenha.setStyle("-fx-padding: 10px;");
 
-        VBox emailBox = new VBox(5, labelEmail, txtEmail);
-        VBox senhaBox = new VBox(5, labelSenha, passSenha);
+        Button btnEntrar = new Button("Entrar");
+        btnEntrar.setMaxWidth(Double.MAX_VALUE);
+        btnEntrar.setStyle("-fx-background-color: #FF9900; -fx-text-fill: #0F1111; -fx-font-weight: bold; -fx-padding: 10px; -fx-cursor: hand; -fx-background-radius: 4px;");
 
-        Button botaoLogin = new Button("Login");
-        botaoLogin.setMaxWidth(Double.MAX_VALUE);
-        botaoLogin.setStyle("-fx-background-color: #FF9900; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10px; -fx-cursor: hand;");
+        Hyperlink linkCadastro = new Hyperlink("Não tem uma conta? Cadastre-se");
+        linkCadastro.setStyle("-fx-text-fill: #0066C0; -fx-underline: false;");
+        linkCadastro.setOnAction(e -> navegador.irPara(TelaCadastroView.class, () -> new TelaCadastroView(navegador)));
 
-        Button botaoCadastrar = new Button("Cadastrar");
-        botaoCadastrar.setMaxWidth(Double.MAX_VALUE);
-        botaoCadastrar.setStyle("-fx-background-color: #E2E8F0; -fx-text-fill: #2D3748; -fx-font-weight: bold; -fx-padding: 10px; -fx-cursor: hand;");
 
-        // Faz os botões crescerem proporcionalmente
-        HBox.setHgrow(botaoLogin, Priority.ALWAYS);
-        HBox.setHgrow(botaoCadastrar, Priority.ALWAYS);
+        // ==========================================
+        // LÓGICA DO BOTÃO LOGIN
+        // ==========================================
+        btnEntrar.setOnAction(event -> {
+            String email = txtEmail.getText().trim();
+            String senha = txtSenha.getText();
 
-        HBox botoesBox = new HBox(15, botaoLogin, botaoCadastrar);
-        botoesBox.setAlignment(Pos.CENTER);
+            // 1. Validação básica de campos
+            if (email.isEmpty() || senha.isEmpty()) {
+                exibirAlerta(Alert.AlertType.WARNING, "Campos Obrigatórios", "Por favor, preencha o e-mail e a senha.");
+                return;
+            }
 
-        // Card central do Login
-        VBox card = new VBox(18, titleLabel, emailBox, senhaBox, botoesBox);
-        card.setAlignment(Pos.CENTER_LEFT);
-        card.setMaxWidth(400); // Largura máxima do card para não esticar infinitamente em monitores UltraWide
-        card.setPadding(new Insets(30));
-        card.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 8px; " +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 12, 0, 0, 4);");
+            try {
+                // 2. Busca e valida o usuário no banco de dados
+                SessaoUsuario.encerrarSessao();
+                SessaoUsuario.iniciarSessao(loginController.autenticar(email,senha));
 
-        // Permite expandir mantendo o alinhamento no centro da janela
-        container = new StackPane(card);
-        container.setAlignment(Pos.CENTER);
-        VBox.setVgrow(container, Priority.ALWAYS);
 
-        // Ações
-        botaoCadastrar.setOnAction(e -> navegador.irPara(TelaCadastroView.class, () -> new TelaCadastroView(navegador)));
+                // 4. Redireciona para o Dashboard do Cliente
+                navegador.irPara(
+                        TelaClienteDashboardView.class,
+                        () -> new TelaClienteDashboardView(navegador)
+                );
+
+
+            } catch (IllegalArgumentException e) {
+                // Tratamento de credenciais incorretas
+                exibirAlerta(Alert.AlertType.ERROR, "Falha no Login", e.getMessage());
+            } catch (Exception e) {
+                // Tratamento de falha de conexão com o banco MySQL
+                exibirAlerta(Alert.AlertType.ERROR, "Erro no Sistema", "Não foi possível conectar ao banco de dados: " + e.getMessage());
+            }
+        });
+
+        cardLogin.getChildren().addAll(
+                lblTitulo,
+                new Label("E-mail"), txtEmail,
+                new Label("Senha"), txtSenha,
+                btnEntrar,
+                linkCadastro
+        );
+
+        root.getChildren().add(cardLogin);
+    }
+
+    private void exibirAlerta(Alert.AlertType tipo, String titulo, String mensagem) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensagem);
+        alert.showAndWait();
     }
 
     @Override
     public Node getRoot() {
-        return container;
+        return root;
     }
 
     @Override
     public void aoExibir() {
-        txtEmail.clear();
-        passSenha.clear();
-        txtEmail.requestFocus();
+        // Limpa os campos quando a tela é carregada
+        SessaoUsuario.encerrarSessao();
     }
 }

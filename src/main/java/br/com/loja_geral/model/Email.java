@@ -27,4 +27,9 @@ public class Email {
             throw new EmailException("Formato de E-mail inválido");
         }
     }
+
+    public void setEndereco(String endereco){
+        regraEmail(endereco);
+        this.endereco = endereco;
+    }
 }

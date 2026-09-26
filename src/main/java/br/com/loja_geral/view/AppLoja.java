@@ -10,13 +10,23 @@ public class AppLoja extends Application {
     public void start(Stage primaryStage) {
         Navegador navegador = new Navegador();
 
-        // Define o login como a tela inicial
+        // Inicializa na tela de Login
         navegador.irPara(TelaLoginView.class, () -> new TelaLoginView(navegador));
 
-        Scene scene = new Scene(navegador, 550, 750);
+        // Cria a cena definindo largura e altura iniciais
+        Scene scene = new Scene(navegador, 1024, 720);
 
+        primaryStage.setTitle("BrasilVendas - E-commerce");
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Amazon");
+
+        // Evita que a janela encolha além do suportado
+        primaryStage.setMinWidth(800);
+        primaryStage.setMinHeight(600);
+
+        // Garante a limpeza da sessão ao fechar no 'X'
+        primaryStage.setOnCloseRequest(
+                e -> System.exit(0));
+
         primaryStage.show();
     }
 

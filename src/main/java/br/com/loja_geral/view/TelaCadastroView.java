@@ -1,5 +1,12 @@
 package br.com.loja_geral.view;
 
+import br.com.loja_geral.exception.DocumentoInvalidoException;
+import br.com.loja_geral.exception.EmailException;
+import br.com.loja_geral.exception.EmailExistenteException;
+import br.com.loja_geral.exception.UsuarioJaCadastradoException;
+import br.com.loja_geral.model.Cliente;
+import br.com.loja_geral.model.Email;
+import br.com.loja_geral.util.SessaoUsuario;
 import br.com.loja_geral.service.ServiceLogin;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -71,11 +78,38 @@ public class TelaCadastroView implements Tela {
         btnVoltar.setOnAction(e -> navegador.irPara(TelaLoginView.class, () -> new TelaLoginView(navegador)));
 
         btnCadastrar.setOnAction(event -> {
-            String nome = txtNome.getText();
-            String cpf = txtCpf.getText();
-            String email = txtEmail.getText();
-            String senha = txtSenha.getText();
-            loginController.cadastrar(nome,cpf,email,senha);
+            try {
+                String nome = txtNome.getText();
+                String cpf = txtCpf.getText();
+                String email = txtEmail.getText();
+                String senha = txtSenha.getText();
+                loginController.cadastrar(nome, cpf, email, senha);
+
+                SessaoUsuario.iniciarSessao(new Cliente(nome,cpf,new Email(email),senha));
+                    navegador.irPara(
+                            TelaClienteDashboardView.class,
+                            () -> new TelaClienteDashboardView(navegador)
+                    );
+
+            }catch(EmailExistenteException e){
+                System.err.println(e.getMessage());
+                exibirMensagem(Alert.AlertType.WARNING,"Aviso",e.getMessage());
+
+            }catch(UsuarioJaCadastradoException e){
+                System.err.println("Usuaário já cadastrado: "+e.getMessage());
+                exibirMensagem(Alert.AlertType.WARNING,"Aviso",e.getMessage());
+
+            }catch(DocumentoInvalidoException e){
+                System.err.println("Erro "+ e.getMessage());
+                exibirMensagem(Alert.AlertType.ERROR,"Aviso",e.getMessage());
+
+            }catch(EmailException e){
+                System.err.println("Erro: "+e.getMessage());
+                exibirMensagem(Alert.AlertType.WARNING,"Aviso",e.getMessage());
+
+            }
+
+
         });
     }
 
@@ -91,5 +125,20 @@ public class TelaCadastroView implements Tela {
         txtEmail.clear();
         txtSenha.clear();
         txtNome.requestFocus();
+    }
+
+    /**
+     * Exibe uma caixa de diálogo nativa do JavaFX.
+     *
+     * @param tipo    Tipo do alerta (WARNING, ERROR, INFORMATION, CONFIRMATION)
+     * @param titulo  Texto da barra de título da janela
+     * @param mensagem Conteúdo da mensagem exibida para o usuário
+     */
+    private void exibirMensagem(Alert.AlertType tipo, String titulo, String mensagem) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null); // Remove o cabeçalho secundário para um visual mais limpo
+        alert.setContentText(mensagem);
+        alert.showAndWait(); // Bloqueia a tela até o usuário clicar em "OK"
     }
 }

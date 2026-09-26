@@ -16,6 +16,12 @@ public class Endereco {
         this.numeroDaCasa = numeroDaCasa;
     }
 
+    public void setEndereco(Endereco endereco){
+        rua = endereco.getRua();
+        bairro = endereco.getBairro();
+        cidade = endereco.getCidade();
+    }
+
     @Override
     public String toString(){
         return String.format(
@@ -30,6 +36,15 @@ public class Endereco {
     }
     public String getBairro(){
         return bairro;
+    }
+    public String getCidade(){
+        return cidade;
+    }
+    public String getNumeroDaCasa(){
+        return numeroDaCasa;
+    }
+    public String getCep(){
+        return cep;
     }
 
 

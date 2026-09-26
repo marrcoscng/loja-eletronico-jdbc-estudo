@@ -23,7 +23,7 @@ public class LoginDAOJDBC implements LoginDAO<Usuario> {
         String inserirUsuario = "INSERT INTO usuario(nome,cpf,email,senha,tipo_do_usuario) VALUES (?,?,?,?,?)";
         try (PreparedStatement preparedStatement = conn.prepareStatement(inserirUsuario,Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, usuario.getNome());
-            preparedStatement.setString(2, usuario.getCpf());
+            preparedStatement.setString(2, usuario.getCpf().replaceAll("\\D",""));
             preparedStatement.setString(3, usuario.getEmail().getEndereco());
             preparedStatement.setString(4, usuario.getSenha());
             preparedStatement.setString(5, usuario.getTipoDoUsuario().name());

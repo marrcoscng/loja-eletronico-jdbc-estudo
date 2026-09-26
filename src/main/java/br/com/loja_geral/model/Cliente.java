@@ -4,7 +4,7 @@ import br.com.loja_geral.model.enums.TipoDoUsuario;
 
 public class Cliente extends Usuario{
 
-    Endereco endereco;
+    private Endereco endereco;
 
     public Cliente(String nome, String cpf, Email email, String senha){
         super(nome,cpf,email,senha, TipoDoUsuario.CLIENTE);
@@ -12,6 +12,9 @@ public class Cliente extends Usuario{
 
     public void setEndereco(Endereco endereco){
         this.endereco = endereco;
+    }
+    public Endereco getEndereco(){
+        return endereco;
     }
 
 
