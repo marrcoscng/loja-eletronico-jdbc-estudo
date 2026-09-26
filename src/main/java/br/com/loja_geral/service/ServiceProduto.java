@@ -51,7 +51,7 @@ public class ServiceProduto {
             }catch(SQLException rollback){
                 try {
                     conn.rollback();
-                    throw new DBException("Produto não deletado -- rollback atvado " + rollback.getMessage());
+                    throw new DBException("Produto não deletado -- rollback ativado " + rollback.getMessage());
                 }catch(SQLException er){
                     throw new DBException("Erro ao chamar rollback - "+er.getMessage());
                 }
