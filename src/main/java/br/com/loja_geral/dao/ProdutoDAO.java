@@ -3,12 +3,12 @@ package br.com.loja_geral.dao;
 import br.com.loja_geral.model.Produto;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 public interface ProdutoDAO<T extends Produto> {
 
-    void cadastrarProduto(T produto) throws SQLException;
-    ArrayList<T> buscarProdutos() throws SQLException;
+    void cadastrarProduto(T produto, Integer qtda) throws SQLException;
+    List< ? extends Produto > buscarProdutos() throws SQLException;
     T buscarProdutoId(Long id) throws SQLException;
     void deletarProdutoId(Long id) throws SQLException;
     void editarProduto(T produto) throws SQLException;

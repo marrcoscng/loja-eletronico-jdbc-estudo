@@ -1,5 +1,6 @@
 package br.com.loja_geral.dao;
 
+import br.com.loja_geral.dto.ProdutoEstoqueDTO;
 import br.com.loja_geral.exception.ProdutoNaoEncontradoException;
 import br.com.loja_geral.model.Produto;
 import java.sql.Connection;
@@ -7,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
 
@@ -17,13 +19,14 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
     }
 
     @Override
-    public void cadastrarProduto(Produto produto) throws SQLException{
-        String inserirBD = "INSERT INTO produto (nome,descricao,path_file,preco) VALUES (?,?,?,?);";
+    public void cadastrarProduto(Produto produto, Integer qtda) throws SQLException{
+        String inserirBD = "INSERT INTO produto (nome,descricao,path_file,preco,qtda) VALUES (?,?,?,?,?);";
         try (PreparedStatement preparedStatement = conn.prepareStatement(inserirBD,PreparedStatement.RETURN_GENERATED_KEYS)){
             preparedStatement.setString(1,produto.getNome());
             preparedStatement.setString(2,produto.getDescricao());
             preparedStatement.setString(3,produto.getPATH_FILE());
             preparedStatement.setBigDecimal(4,produto.getPreco());
+            preparedStatement.setInt(5,qtda);
 
             preparedStatement.executeUpdate();
 
@@ -37,15 +40,15 @@ public class ProdutoDAOJDBC implements ProdutoDAO<Produto>{
     }
 
     @Override
-    public ArrayList<Produto> buscarProdutos()  throws SQLException{
-        ArrayList<Produto> listaProdutos = new ArrayList<>();
+    public List<ProdutoEstoqueDTO> buscarProdutos()  throws SQLException{
+        ArrayList<ProdutoEstoqueDTO> listaProdutos = new ArrayList<>();
 
         try(PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM produto;")){
             try(ResultSet resultSet = preparedStatement.executeQuery()){
                 while(resultSet.next()){
                     Produto produto = new Produto(resultSet.getString("nome"),resultSet.getString("descricao"),resultSet.getString("path_file"),resultSet.getBigDecimal("preco"));
                     produto.setId(resultSet.getLong("id"));
-                    listaProdutos.add(produto);
+                    listaProdutos.add(new ProdutoEstoqueDTO(produto,resultSet.getInt("qtda"),produto.getId()));
                 }
             }
             return listaProdutos;

@@ -1,26 +1,36 @@
 package br.com.loja_geral.view;
 
+import br.com.loja_geral.dto.ProdutoEstoqueDTO;
 import br.com.loja_geral.model.Pedido;
+import br.com.loja_geral.model.Produto;
 import br.com.loja_geral.model.Usuario;
+import br.com.loja_geral.service.ServiceProduto;
 import br.com.loja_geral.util.SessaoUsuario;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.MapValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import br.com.loja_geral.controller.ProdutoController;
 
-import java.util.HashMap;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class TelaGerenteDashboardView implements Tela {
+
+    ProdutoController produtoController = new ProdutoController(new ServiceProduto());
 
     private final BorderPane root;
     private Label lblNomeGerente;
@@ -169,7 +179,6 @@ public class TelaGerenteDashboardView implements Tela {
             return new SimpleStringProperty(p != null && p.getIdCliente() != null ? String.valueOf(p.getIdCliente()) : "");
         });
 
-
         // Coluna Data (do objeto Pedido)
         TableColumn<Map.Entry<UUID, Pedido>, String> colData = new TableColumn<>("Data");
         colData.setCellValueFactory(cellData -> {
@@ -218,8 +227,6 @@ public class TelaGerenteDashboardView implements Tela {
             if (entrySelecionada != null && comboNovoStatus.getValue() != null) {
                 Pedido pedidoSelecionado = entrySelecionada.getValue();
                 if (pedidoSelecionado != null) {
-                    // Atualiza o status diretamente no objeto Pedido
-                    // pedidoSelecionado.setStatus(StatusPedido.valueOf(comboNovoStatus.getValue()));
                     tabelaPedidos.refresh();
                     mostrarAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Status do Pedido UUID " + entrySelecionada.getKey() + " atualizado.");
                 }
@@ -235,7 +242,7 @@ public class TelaGerenteDashboardView implements Tela {
     }
 
     // ==========================================
-    // 4. ABA: CRUD DE PRODUTOS
+    // 4. ABA: CRUD DE PRODUTOS (COM PRODUTOESTOQUEDTO)
     // ==========================================
     private VBox criarAbaProdutos() {
         VBox layout = new VBox(15);
@@ -258,39 +265,114 @@ public class TelaGerenteDashboardView implements Tela {
 
         barraAcoes.getChildren().addAll(btnNovo, btnEditar, btnExcluir, txtBuscaProduto);
 
-        TableView<Map<String, Object>> tabelaProdutos = new TableView<>();
+        // TableView alinhada com ProdutoEstoqueDTO
+        TableView<ProdutoEstoqueDTO> tabelaProdutos = new TableView<>();
 
-        TableColumn<Map<String, Object>, Object> colProdId = new TableColumn<>("ID");
-        colProdId.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().get("id")));
+        // Definição das Colunas
+        TableColumn<ProdutoEstoqueDTO, Object> colProdId = new TableColumn<>("ID");
+        colProdId.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getId()));
 
-        TableColumn<Map<String, Object>, Object> colProdNome = new TableColumn<>("Nome");
-        colProdNome.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().get("nome")));
+        TableColumn<ProdutoEstoqueDTO, String> colProdNome = new TableColumn<>("Nome");
+        colProdNome.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getNome()));
 
-        TableColumn<Map<String, Object>, Object> colProdCategoria = new TableColumn<>("Categoria");
-        colProdCategoria.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().get("categoria")));
+        TableColumn<ProdutoEstoqueDTO, String> colProdPreco = new TableColumn<>("Preço (R$)");
+        colProdPreco.setCellValueFactory(cellData -> {
+            BigDecimal preco = cellData.getValue().getPreco();
+            return new SimpleStringProperty(preco != null ? String.format("%.2f", preco.doubleValue()) : "0.00");
+        });
 
-        TableColumn<Map<String, Object>, Object> colProdPreco = new TableColumn<>("Preço (R$)");
-        colProdPreco.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().get("preco")));
+        TableColumn<ProdutoEstoqueDTO, Object> colProdEstoque = new TableColumn<>("Estoque");
+        colProdEstoque.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getQuantidadeEstoque()));
 
-        TableColumn<Map<String, Object>, Object> colProdEstoque = new TableColumn<>("Estoque");
-        colProdEstoque.setCellValueFactory(cellData -> new javafx.beans.property.SimpleObjectProperty<>(cellData.getValue().get("estoque")));
-        tabelaProdutos.getColumns().addAll(colProdId, colProdNome, colProdCategoria, colProdPreco, colProdEstoque);
-        tabelaProdutos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        TableColumn<ProdutoEstoqueDTO, String> colProdDescricao = new TableColumn<>("Descrição");
+        colProdDescricao.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDescricao()));
 
-        ObservableList<Map<String, Object>> listaProdutos = FXCollections.observableArrayList();
+        TableColumn<ProdutoEstoqueDTO, String> colProdImagem = new TableColumn<>("Imagem");
+        colProdImagem.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPATH_FILE()));
 
-        Map<String, Object> pr1 = new HashMap<>();
-        pr1.put("id", 1); pr1.put("nome", "Notebook Dell Inspiron"); pr1.put("categoria", "Informática"); pr1.put("preco", 3500.00); pr1.put("estoque", 5);
+        colProdImagem.setCellFactory(col -> new TableCell<ProdutoEstoqueDTO, String>() {
+            private final ImageView imageView = new ImageView();
 
-        Map<String, Object> pr2 = new HashMap<>();
-        pr2.put("id", 2); pr2.put("nome", "Smartphone Samsung A05s"); pr2.put("categoria", "Smartphones"); pr2.put("preco", 899.00); pr2.put("estoque", 12);
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
 
-        listaProdutos.addAll(pr1, pr2);
-        tabelaProdutos.setItems(listaProdutos);
+                if (empty || item == null || item.trim().isEmpty()) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    try {
+                        String caminhoImagem = item;
+                        Image img;
 
+                        if (caminhoImagem.startsWith("http://") || caminhoImagem.startsWith("https://")) {
+                            img = new Image(caminhoImagem, 40, 40, true, true, true);
+                        } else {
+                            java.io.File file = new java.io.File(caminhoImagem);
+                            if (file.exists()) {
+                                img = new Image(file.toURI().toString(), 40, 40, true, true, true);
+                            } else {
+                                setGraphic(null);
+                                setText("N/A");
+                                return;
+                            }
+                        }
+
+                        imageView.setImage(img);
+                        imageView.setFitWidth(40);
+                        imageView.setFitHeight(40);
+                        imageView.setPreserveRatio(true);
+
+                        setGraphic(imageView);
+                        setText(null);
+                    } catch (Exception e) {
+                        setGraphic(null);
+                        setText("Erro");
+                    }
+                }
+            }
+        });
+
+        tabelaProdutos.getColumns().addAll(colProdId, colProdNome, colProdPreco, colProdEstoque, colProdDescricao, colProdImagem);
+        tabelaProdutos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        // Dados Iniciais vindos da busca do Controller/DAO
+        ObservableList<ProdutoEstoqueDTO> listaProdutos = FXCollections.observableArrayList();
+
+        try {
+            List<? extends Produto> produtosBuscados = produtoController.buscarProdutos();
+            for (Produto p : produtosBuscados) {
+                if (p instanceof ProdutoEstoqueDTO) {
+                    listaProdutos.add((ProdutoEstoqueDTO) p);
+                } else {
+                    listaProdutos.add(new ProdutoEstoqueDTO(p, 0,p.getId()));
+                }
+            }
+        } catch (Exception ex) {
+            mostrarAlerta(Alert.AlertType.ERROR, "Erro", "Erro ao carregar lista de produtos.");
+        }
+
+        // Configuração do Filtro de Busca Dinâmica
+        FilteredList<ProdutoEstoqueDTO> dadosFiltrados = new FilteredList<>(listaProdutos, p -> true);
+        txtBuscaProduto.textProperty().addListener((observable, oldValue, newValue) -> {
+            dadosFiltrados.setPredicate(prod -> {
+                if (newValue == null || newValue.trim().isEmpty()) {
+                    return true;
+                }
+                String termo = newValue.toLowerCase();
+                String nome = prod.getNome() != null ? prod.getNome().toLowerCase() : "";
+                String categoria = prod.getCategoria() != null ? prod.getCategoria().getCategoria().toUpperCase() : "";
+                return nome.contains(termo) || categoria.contains(termo);
+            });
+        });
+
+        tabelaProdutos.setItems(dadosFiltrados);
+
+        // Eventos dos Botões corrigidos para ProdutoEstoqueDTO
         btnNovo.setOnAction(e -> abrirFormularioProduto(null, listaProdutos, tabelaProdutos));
+
         btnEditar.setOnAction(e -> {
-            Map<String, Object> selecionado = tabelaProdutos.getSelectionModel().getSelectedItem();
+            ProdutoEstoqueDTO selecionado = tabelaProdutos.getSelectionModel().getSelectedItem();
             if (selecionado != null) {
                 abrirFormularioProduto(selecionado, listaProdutos, tabelaProdutos);
             } else {
@@ -299,7 +381,7 @@ public class TelaGerenteDashboardView implements Tela {
         });
 
         btnExcluir.setOnAction(e -> {
-            Map<String, Object> selecionado = tabelaProdutos.getSelectionModel().getSelectedItem();
+            ProdutoEstoqueDTO selecionado = tabelaProdutos.getSelectionModel().getSelectedItem();
             if (selecionado != null) {
                 listaProdutos.remove(selecionado);
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Removido", "Produto removido com sucesso.");
@@ -312,7 +394,7 @@ public class TelaGerenteDashboardView implements Tela {
         return layout;
     }
 
-    private void abrirFormularioProduto(Map<String, Object> produto, ObservableList<Map<String, Object>> listaProdutos, TableView<Map<String, Object>> tabela) {
+    private void abrirFormularioProduto(ProdutoEstoqueDTO produto, ObservableList<ProdutoEstoqueDTO> listaProdutos, TableView<ProdutoEstoqueDTO> tabela) {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle(produto == null ? "Cadastrar Novo Produto" : "Editar Produto");
 
@@ -321,19 +403,50 @@ public class TelaGerenteDashboardView implements Tela {
         grid.setVgap(10);
         grid.setPadding(new Insets(20));
 
-        TextField txtNome = new TextField(produto != null ? String.valueOf(produto.get("nome")) : "");
-        TextField txtCategoria = new TextField(produto != null ? String.valueOf(produto.get("categoria")) : "");
-        TextField txtPreco = new TextField(produto != null ? String.valueOf(produto.get("preco")) : "");
-        TextField txtEstoque = new TextField(produto != null ? String.valueOf(produto.get("estoque")) : "");
+        // Campos de Texto
+        TextField txtNome = new TextField(produto != null && produto.getNome() != null ? produto.getNome() : "");
+        TextField txtPreco = new TextField(produto != null && produto.getPreco() != null ? produto.getPreco().toString() : "");
+        TextField txtEstoque = new TextField(produto != null ? String.valueOf(produto.getQuantidadeEstoque()) : "");
 
+        TextArea txtDescricao = new TextArea(produto != null && produto.getDescricao() != null ? produto.getDescricao() : "");
+        txtDescricao.setPrefRowCount(3);
+        txtDescricao.setWrapText(true);
+
+        // Campo de Imagem + Botão de Seleção
+        TextField txtImagemUrl = new TextField(produto != null && produto.getPATH_FILE() != null ? produto.getPATH_FILE() : "");
+        txtImagemUrl.setPromptText("Caminho ou URL da imagem...");
+
+        Button btnSelecionarImagem = new Button("📁 Selecionar...");
+        btnSelecionarImagem.setOnAction(e -> {
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.setTitle("Selecionar Imagem do Produto");
+            fileChooser.getExtensionFilters().addAll(
+                    new javafx.stage.FileChooser.ExtensionFilter("Imagens", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp")
+            );
+            java.io.File arquivoSelecionado = fileChooser.showOpenDialog(dialog.getDialogPane().getScene().getWindow());
+            if (arquivoSelecionado != null) {
+                txtImagemUrl.setText(arquivoSelecionado.getAbsolutePath());
+            }
+        });
+
+        HBox boxImagem = new HBox(8, txtImagemUrl, btnSelecionarImagem);
+        HBox.setHgrow(txtImagemUrl, Priority.ALWAYS);
+
+        // Montagem do Layout do Formulário
         grid.add(new Label("Nome:"), 0, 0);
         grid.add(txtNome, 1, 0);
-        grid.add(new Label("Categoria:"), 0, 1);
-        grid.add(txtCategoria, 1, 1);
-        grid.add(new Label("Preço:"), 0, 2);
+
+        grid.add(new Label("Preço (R$):"), 0, 2);
         grid.add(txtPreco, 1, 2);
-        grid.add(new Label("Estoque:"), 0, 3);
+
+        grid.add(new Label("Quantidade/Estoque:"), 0, 3);
         grid.add(txtEstoque, 1, 3);
+
+        grid.add(new Label("Descrição:"), 0, 4);
+        grid.add(txtDescricao, 1, 4);
+
+        grid.add(new Label("Imagem:"), 0, 5);
+        grid.add(boxImagem, 1, 5);
 
         dialog.getDialogPane().setContent(grid);
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -342,24 +455,31 @@ public class TelaGerenteDashboardView implements Tela {
             if (resposta == ButtonType.OK) {
                 try {
                     String nome = txtNome.getText();
-                    String cat = txtCategoria.getText();
-                    double preco = Double.parseDouble(txtPreco.getText());
+                    BigDecimal preco = new BigDecimal(txtPreco.getText());
                     int est = Integer.parseInt(txtEstoque.getText());
+                    String descricao = txtDescricao.getText();
+                    String imagemUrl = txtImagemUrl.getText();
 
                     if (produto == null) {
-                        Map<String, Object> novoProd = new HashMap<>();
-                        novoProd.put("id", listaProdutos.size() + 1);
-                        novoProd.put("nome", nome);
-                        novoProd.put("categoria", cat);
-                        novoProd.put("preco", preco);
-                        novoProd.put("estoque", est);
-                        listaProdutos.add(novoProd);
+                        // Salva no BD através do controller
+                        produtoController.salvarProduto(nome, descricao, imagemUrl, preco, est);
+
+                        // Cria o modelo base e engloba no DTO
+                        Produto p = new Produto(nome, descricao, imagemUrl, preco);
+                        p.setId((long) (listaProdutos.size() + 1));
+
+                        ProdutoEstoqueDTO novoDto = new ProdutoEstoqueDTO(p, est,p.getId());
+                        listaProdutos.add(novoDto);
+
+                        mostrarAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Produto cadastrado com sucesso!");
                     } else {
-                        produto.put("nome", nome);
-                        produto.put("categoria", cat);
-                        produto.put("preco", preco);
-                        produto.put("estoque", est);
+                        produto.setNome(nome);
+                        produto.setPreco(preco);
+                        produto.setDescricao(descricao);
+                        produto.setPATH_FILE(imagemUrl);
+
                         tabela.refresh();
+                        mostrarAlerta(Alert.AlertType.INFORMATION, "Sucesso", "Produto atualizado com sucesso!");
                     }
                 } catch (NumberFormatException ex) {
                     mostrarAlerta(Alert.AlertType.ERROR, "Erro de Validação", "Preço e estoque devem conter valores numéricos válidos.");

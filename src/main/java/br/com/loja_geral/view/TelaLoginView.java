@@ -89,7 +89,7 @@ public class TelaLoginView implements Tela {
                 exibirAlerta(Alert.AlertType.ERROR, "Falha no Login", e.getMessage());
             } catch (Exception e) {
                 // Tratamento de falha de conexão com o banco MySQL
-                exibirAlerta(Alert.AlertType.ERROR, "Erro no Sistema", "Não foi possível conectar ao banco de dados: " + e.getMessage());
+                exibirAlerta(Alert.AlertType.ERROR, "Erro", "Confira seus dados: " + e.getMessage());
             }
         });
 

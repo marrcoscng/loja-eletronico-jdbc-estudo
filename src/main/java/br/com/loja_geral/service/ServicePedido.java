@@ -24,9 +24,10 @@ public class ServicePedido {
                 conn.commit();
             }catch(SQLException e){
                 conn.rollback();
+                throw e;
             }
         }catch(SQLException e){
-            throw new DBException("Erro em SQL ao iniciar banco de dados - "+e.getMessage());
+            throw new DBException("Error SQL - "+e.getMessage());
         }
     }
 

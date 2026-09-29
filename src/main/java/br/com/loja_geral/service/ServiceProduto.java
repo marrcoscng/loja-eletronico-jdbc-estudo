@@ -2,6 +2,7 @@ package br.com.loja_geral.service;
 
 import br.com.loja_geral.dao.DAOFactory;
 import br.com.loja_geral.dao.ProdutoDAO;
+import br.com.loja_geral.dto.ProdutoEstoqueDTO;
 import br.com.loja_geral.exception.DBException;
 import br.com.loja_geral.exception.ProdutoJaCadastradoException;
 import br.com.loja_geral.model.Produto;
@@ -9,10 +10,12 @@ import br.com.loja_geral.util.DBConnection;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServiceProduto {
 
-    public void salvarProduto(Produto produto){
+    public void salvarProduto(Produto produto, Integer qtda){
 
         // Iniciamos a connection pelo pacote Service. Dentro de um try-resources-catch para que ela seja fechada assim que acabar com o procedimento necessario.
         try(Connection conn = DBConnection.getConnection()){
@@ -22,12 +25,12 @@ public class ServiceProduto {
                 if (produtoDAOJDBC.validarProduto(produto)) {
                     throw new ProdutoJaCadastradoException("Produto já cadastrado");
                 }
-                produtoDAOJDBC.cadastrarProduto(produto);
+                produtoDAOJDBC.cadastrarProduto(produto,qtda);
                 conn.commit();
             }catch(SQLException er){
                 try {
                     conn.rollback();
-                    throw new DBException("Erro ao salvar pedido - " + er.getMessage());
+                    throw new DBException("Erro ao salvar produto - " + er.getMessage());
                 }catch(SQLException rollback){
                     throw new DBException("Erro ao inicializar rollback - "+rollback.getMessage());
                 }
@@ -58,6 +61,15 @@ public class ServiceProduto {
             }
         }catch(SQLException e){
             throw new DBException("Erro ao conversar com Banco de dados - "+e.getMessage());
+        }
+    }
+
+    public List<ProdutoEstoqueDTO> buscarProdutos(){
+        try (Connection conn = DBConnection.getConnection()) {
+            ProdutoDAO produtoDAO = DAOFactory.getProdutoDAO(conn);
+            return produtoDAO.buscarProdutos();
+        }catch(SQLException e){
+            throw new DBException("Erro em connection - "+e.getMessage());
         }
     }
 
