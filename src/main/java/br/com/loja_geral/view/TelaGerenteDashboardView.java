@@ -1,6 +1,7 @@
 package br.com.loja_geral.view;
 
 import br.com.loja_geral.dto.ProdutoEstoqueDTO;
+import br.com.loja_geral.exception.ProdutoNaoEncontradoException;
 import br.com.loja_geral.model.Pedido;
 import br.com.loja_geral.model.Produto;
 import br.com.loja_geral.model.Usuario;
@@ -383,6 +384,12 @@ public class TelaGerenteDashboardView implements Tela {
         btnExcluir.setOnAction(e -> {
             ProdutoEstoqueDTO selecionado = tabelaProdutos.getSelectionModel().getSelectedItem();
             if (selecionado != null) {
+                try {
+                    produtoController.deletarProdutoPorId(selecionado.getId());
+                }catch(ProdutoNaoEncontradoException err){
+                    System.err.println("Produto não encontrado - "+err.getMessage());
+                    mostrarAlerta(Alert.AlertType.INFORMATION,"Produto não deletado",err.getMessage());
+                }
                 listaProdutos.remove(selecionado);
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Removido", "Produto removido com sucesso.");
             } else {

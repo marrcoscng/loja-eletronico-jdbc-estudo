@@ -5,6 +5,7 @@ import br.com.loja_geral.dao.ProdutoDAO;
 import br.com.loja_geral.dto.ProdutoEstoqueDTO;
 import br.com.loja_geral.exception.DBException;
 import br.com.loja_geral.exception.ProdutoJaCadastradoException;
+import br.com.loja_geral.exception.ProdutoNaoEncontradoException;
 import br.com.loja_geral.model.Produto;
 import br.com.loja_geral.util.DBConnection;
 
@@ -47,7 +48,7 @@ public class ServiceProduto {
                 ProdutoDAO produtoDAO = DAOFactory.getProdutoDAO(conn);
 
                 if (!produtoDAO.procurarProdutoPorId(id)) {
-                    throw new ProdutoJaCadastradoException("Produto não encontrado no sistema!");
+                    throw new ProdutoNaoEncontradoException("Produto não encontrado no sistema!");
                 }
                 produtoDAO.deletarProdutoId(id);
                 conn.commit();

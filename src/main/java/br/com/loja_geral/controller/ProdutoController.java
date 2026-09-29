@@ -37,4 +37,12 @@ public class ProdutoController {
         return serviceProduto.buscarProdutos();
     }
 
+    public void deletarProdutoPorId(Long id){
+        try {
+            serviceProduto.deletarProdutoPorId(id);
+        }catch(DBException e){
+            System.err.println("Erro - "+e.getMessage());
+        }
+    }
+
 }
